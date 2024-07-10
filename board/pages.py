@@ -5,6 +5,8 @@ from werkzeug.utils import secure_filename
 bp = Blueprint("pages", __name__)
 app = Flask(__name__)
 
+UPLOAD_FOLDER = 'uploads'
+
 def allowed_file(filename):
     allowed_extensions = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
     return '.' in filename and \
@@ -18,6 +20,7 @@ def home():
 def upload_file():
     return render_template('pages/upload_service_file.html')
 
+@bp.route('/upload_service_file', methods=['POST'])
 def upload_service_file():
     if 'file' not in request.files:
         return redirect(request.url)
@@ -33,6 +36,7 @@ def upload_service_file():
         return redirect(url_for('pages.form_project'))
     else:
         return redirect(request.url)
+
 
 @bp.route('/form_project', methods=['POST', 'GET'])
 def form_project():
