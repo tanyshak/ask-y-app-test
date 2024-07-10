@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Upload File</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  </head>
+  <body>
+    <div class="container">
+      <h1>Download your service account file</h1>
+      <form action="{{ url_for('pages.upload_service_file') }}" method="post" enctype="multipart/form-data">
+        <div class="form-group">
+          <input type="file" name="file" class="file-input">
+        </div>
+        <button type="submit" class="btn">Upload</button>
+      </form>
+    </div>
+  </body>
+</html>

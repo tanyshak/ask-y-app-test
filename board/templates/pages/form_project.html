@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Result</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  </head>
+  <body>
+    <div class="container">
+      <h1>We need some additional information to get access to your data</h1>
+      <form action="{{ url_for('pages.form_select_columns') }}" method="post">
+        <div class="form-group">
+          <label for="project_name">Project Name:</label>
+          <input type="text" id="project_name" name="project_name" placeholder="Enter project name">
+        </div>
+        <div class="form-group">
+          <label for="dataset_id">Dataset ID:</label>
+          <input type="text" id="dataset_id" name="dataset_id" placeholder="Enter dataset_id">
+        </div>
+        <div class="form-group">
+          <label for="table_id">Table ID:</label>
+          <input type="text" id="table_id" name="table_id" placeholder="Enter table_id">
+        </div>
+        <button type="submit" class="btn">Submit</button>
+      </form>
+    </div>
+  </body>
+</html>

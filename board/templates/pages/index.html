@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>My Flask App</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  </head>
+  <body>
+    <div class="container">
+      <h1>Welcome to Ask Y!</h1>
+      <a href="{{ url_for('pages.upload_service_file') }}" class="btn">Analyze my Bigquery data</a>
+    </div>
+  </body>
+</html>
