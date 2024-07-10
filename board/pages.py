@@ -18,7 +18,6 @@ def home():
 def upload_file():
     return render_template('pages/upload_service_file.html')
 
-@bp.route('/upload_service_file', methods=['POST'])
 def upload_service_file():
     if 'file' not in request.files:
         return redirect(request.url)
@@ -26,12 +25,14 @@ def upload_service_file():
     if file.filename == '':
         return redirect(request.url)
     if file and allowed_file(file.filename):
+        if not os.path.exists(UPLOAD_FOLDER):
+            os.makedirs(UPLOAD_FOLDER)
         filename = secure_filename(file.filename)
-        file.save(os.path.join('uploads', filename))
+        file_path = os.path.join(UPLOAD_FOLDER, filename)
+        file.save(file_path)
         return redirect(url_for('pages.form_project'))
     else:
         return redirect(request.url)
-
 
 @bp.route('/form_project', methods=['POST', 'GET'])
 def form_project():
