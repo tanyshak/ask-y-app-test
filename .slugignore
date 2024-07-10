@@ -1,0 +1,11 @@
+*.pyc
+__pycache__/
+*.log
+*.zip
+*.tar.gz
+*.egg-info/
+docs/
+tests/
+uploads/
+.env
+*.md
