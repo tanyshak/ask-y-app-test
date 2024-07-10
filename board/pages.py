@@ -1,9 +1,9 @@
 import os
-from flask import Blueprint ,render_template, request, redirect, url_for, current_app, session
+from flask import Blueprint, render_template, request, redirect, url_for, current_app, session, Flask
 from werkzeug.utils import secure_filename
 
-
 bp = Blueprint("pages", __name__)
+app = Flask(__name__)
 
 def allowed_file(filename):
     allowed_extensions = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
@@ -52,8 +52,7 @@ def processing():
     selected_fields = session.get('selected_fields', [])
     return render_template('pages/processing.html', selected_fields=selected_fields)
 
-def app():
-    bp.run(debug=False)
+app.register_blueprint(bp)
 
 if __name__ == '__main__':
     bp.run(debug=True)
