@@ -1,11 +1,17 @@
 import os
 from flask import Blueprint, render_template, request, redirect, url_for, current_app, session, Flask
 from werkzeug.utils import secure_filename
+from flask_session import Session
+
+SESSION_TYPE = 'filesystem'
+UPLOAD_FOLDER = 'uploads'
 
 bp = Blueprint("pages", __name__)
 app = Flask(__name__)
+sess = Session()
 
-UPLOAD_FOLDER = 'uploads'
+app.config['SESSION_TYPE'] = SESSION_TYPE
+app.secret_key = os.getenv('SECRET_KEY')
 
 def allowed_file(filename):
     allowed_extensions = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
@@ -37,19 +43,18 @@ def upload_service_file():
     else:
         return redirect(request.url)
 
-
 @bp.route('/form_project', methods=['POST', 'GET'])
 def form_project():
-    project_name = request.form.get('project_name')
-    dataset_id = request.form.get('dataset_id')
-    table_id = request.form.get('table_id')
+    session['project_name'] = request.form.get('project_name')
+    session['dataset_id'] = request.form.get('dataset_id')
+    session['table_id'] = request.form.get('table_id')
     return render_template('pages/form_select_columns.html')
 
 @bp.route('/form_select_columns', methods=['GET', 'POST'])
 def form_select_columns():
     if request.method == 'POST':
-        selected_fields = request.form.getlist('fields')
-        return redirect(url_for('pages.processing', selected_fields=selected_fields))
+        session['selected_fields'] = request.form.getlist('fields')
+        return redirect(url_for('pages.processing'))
     return render_template('pages/form_select_columns.html')
 
 @bp.route('/processing', methods=['GET', 'POST'])
@@ -58,6 +63,4 @@ def processing():
     return render_template('pages/processing.html', selected_fields=selected_fields)
 
 app.register_blueprint(bp)
-
-if __name__ == '__main__':
-    bp.run(debug=True)
+sess.init_app(app)
