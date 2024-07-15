@@ -8,7 +8,7 @@
   <body>
     <div class="container">
       <h1>We need some additional information to get access to your data</h1>
-      <form action="{{ url_for('pages.form_select_columns') }}" method="post">
+      <form action="{{ url_for('pages.form_project') }}" method="post">
         <div class="form-group">
           <label for="project_name">Project Name:</label>
           <input type="text" id="project_name" name="project_name" placeholder="Enter project name">
@@ -20,6 +20,10 @@
         <div class="form-group">
           <label for="table_id">Table ID:</label>
           <input type="text" id="table_id" name="table_id" placeholder="Enter table_id">
+        </div>
+        <div class="form-group">
+          <label for="location">Location:</label>
+          <input type="text" id="location" name="location" placeholder="Enter location">
         </div>
         <button type="submit" class="btn">Submit</button>
       </form>
