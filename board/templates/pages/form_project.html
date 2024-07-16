@@ -7,26 +7,28 @@
   </head>
   <body>
     <div class="container">
-      <h1>We need some additional information to get access to your data</h1>
+      <h1>We need some additional information to get access to your Bgquery data</h1>
+      <h2>We will create the bucket in Google Storage and place there your table data</h2>
       <form action="{{ url_for('pages.form_project') }}" method="post">
         <div class="form-group">
           <label for="project_name">Project Name:</label>
-          <input type="text" id="project_name" name="project_name" placeholder="Enter project name">
+          <input type="text" id="project_name" name="project_name" placeholder="Enter project name" value = 'ga4-export-for-fisheye-1'>
         </div>
         <div class="form-group">
           <label for="dataset_id">Dataset ID:</label>
-          <input type="text" id="dataset_id" name="dataset_id" placeholder="Enter dataset_id">
+          <input type="text" id="dataset_id" name="dataset_id" placeholder="Enter dataset_id" value = 'kat_unnest_test1'>
         </div>
         <div class="form-group">
           <label for="table_id">Table ID:</label>
-          <input type="text" id="table_id" name="table_id" placeholder="Enter table_id">
+          <input type="text" id="table_id" name="table_id" placeholder="Enter table_id" value = 'kat_unnest_table1'>
         </div>
         <div class="form-group">
           <label for="location">Location:</label>
-          <input type="text" id="location" name="location" placeholder="Enter location">
+          <input type="text" id="location" name="location" placeholder="Enter location" value = 'us'>
         </div>
         <button type="submit" class="btn">Submit</button>
       </form>
+      <h2>The process will take a couple of seconds after you press submit ...</h2>
     </div>
   </body>
 </html>

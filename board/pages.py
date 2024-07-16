@@ -3,9 +3,16 @@ from flask import Blueprint, render_template, request, redirect, url_for, curren
 from werkzeug.utils import secure_filename
 from flask_session import Session
 from board.pages_helpers.upload_service_file import allowed_file
+from board.pages_helpers.form_select_columns import bigquery_save_to_storage
+
+def allowed_file(filename):
+    allowed_extensions = {'json'}
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in allowed_extensions
 
 SESSION_TYPE = 'filesystem'
 UPLOAD_FOLDER = 'uploads'
+FILENAME = secure_filename("service_file.json")
 
 bp = Blueprint("pages", __name__)
 app = Flask(__name__)
@@ -32,8 +39,7 @@ def upload_service_file():
     if file and allowed_file(file.filename):
         if not os.path.exists(UPLOAD_FOLDER):
             os.makedirs(UPLOAD_FOLDER)
-        filename = secure_filename("service_file.json")
-        file_path = os.path.join(UPLOAD_FOLDER, filename)
+        file_path = os.path.join(UPLOAD_FOLDER, FILENAME)
         file.save(file_path)
         return redirect(url_for('pages.form_project'))
     else:
@@ -45,8 +51,17 @@ def form_project():
         session['project_name'] = request.form.get('project_name')
         session['dataset_id'] = request.form.get('dataset_id')
         session['table_id'] = request.form.get('table_id')
+        session['location'] = request.form.get('location')
+        bigquery_save_to_storage(location = session.get('location')
+                                ,key_path = os.path.join(UPLOAD_FOLDER, FILENAME)
+                                ,project = session.get('project_name')
+                                ,dataset_id = session.get('dataset_id')
+                                ,table_id = session.get('table_id')
+                                ,file_path = '/sample_app/*.parquet'
+                                ,bucket= 'data_fisheye_unnest_test_app')
         return redirect(url_for('pages.form_select_columns'))
     return render_template('pages/form_project.html')
+
 
 @bp.route('/form_select_columns', methods=['GET', 'POST'])
 def form_select_columns():
