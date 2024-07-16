@@ -53,14 +53,8 @@ def export_to_gcs(client,
 
     print(
         f"Exported {project}:{dataset_id}.{table_id} to {destination_uri}")
-
-    from google.cloud import bigquery
-from google.oauth2 import service_account
-from google.cloud import storage
-
-#replace with your role
-role = "projects/ga4-export-for-fisheye-1/roles/CustomRole726"
-member = "serviceAccount:sijujecwdr@va3-22da.iam.gserviceaccount.com"
+    storage_allowed_location = f"gcs://{bucket}/{file_path.lstrip('/').rsplit('/', 1)[0]}/"
+    return storage_allowed_location
 
 def add_bucket_iam_member(bucket, storage_client):
     """Add a new member to an IAM Policy"""

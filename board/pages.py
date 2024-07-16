@@ -3,7 +3,8 @@ from flask import Blueprint, render_template, request, redirect, url_for, curren
 from werkzeug.utils import secure_filename
 from flask_session import Session
 from board.pages_helpers.upload_service_file import allowed_file
-from board.pages_helpers.form_select_columns import bigquery_save_to_storage
+from board.pages_helpers.form_project import bigquery_save_to_storage
+from board.pages_helpers.form_snowflake_conn import imort_data_to_snowflake
 
 def allowed_file(filename):
     allowed_extensions = {'json'}
@@ -52,15 +53,30 @@ def form_project():
         session['dataset_id'] = request.form.get('dataset_id')
         session['table_id'] = request.form.get('table_id')
         session['location'] = request.form.get('location')
-        bigquery_save_to_storage(location = session.get('location')
-                                ,key_path = os.path.join(UPLOAD_FOLDER, FILENAME)
-                                ,project = session.get('project_name')
-                                ,dataset_id = session.get('dataset_id')
-                                ,table_id = session.get('table_id')
-                                ,file_path = '/sample_app/*.parquet'
-                                ,bucket= 'data_fisheye_unnest_test_app')
-        return redirect(url_for('pages.form_select_columns'))
+        storage_allowed_location = bigquery_save_to_storage(location = session.get('location')
+                                                            ,key_path = os.path.join(UPLOAD_FOLDER, FILENAME)
+                                                            ,project = session.get('project_name')
+                                                            ,dataset_id = session.get('dataset_id')
+                                                            ,table_id = session.get('table_id')
+                                                            ,file_path = '/sample_app/*.parquet'
+                                                            ,bucket= 'data_fisheye_unnest_test_app')
+        session['storage_allowed_location'] = storage_allowed_location
+        return redirect(url_for('pages.form_snowflake_conn'))
     return render_template('pages/form_project.html')
+
+@bp.route('/form_snowflake_conn', methods=['POST', 'GET'])
+def form_snowflake_conn():
+    if request.method == 'POST':
+        session['user'] = request.form.get('user')
+        session['password'] = request.form.get('password')
+        session['account'] = request.form.get('account')
+        imort_data_to_snowflake(user = session.get('user'),
+                                    password = session.get('password'),
+                                    account = session.get('account'),
+                                    storage_allowed_location = session.get('storage_allowed_location')
+                                    )
+        return redirect(url_for('pages.form_select_columns'))
+    return render_template('pages/form_snowflake_conn.html')
 
 
 @bp.route('/form_select_columns', methods=['GET', 'POST'])
