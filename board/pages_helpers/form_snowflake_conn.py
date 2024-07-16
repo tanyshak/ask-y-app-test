@@ -27,4 +27,4 @@ def imort_data_to_snowflake(user,
     create_file_format(conn, file_format_name)
     create_table(conn, table_name, file_format_name, stage_name)
     copy_into_table(conn, table_name, file_format_name, stage_name)
-    return
+    return table_name, db_name, conn

@@ -6,6 +6,11 @@ from board.pages_helpers.upload_service_file import allowed_file
 from board.pages_helpers.form_project import bigquery_save_to_storage
 from board.pages_helpers.form_snowflake_conn import imort_data_to_snowflake
 
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 def allowed_file(filename):
     allowed_extensions = {'json'}
     return '.' in filename and \
@@ -70,14 +75,25 @@ def form_snowflake_conn():
         session['user'] = request.form.get('user')
         session['password'] = request.form.get('password')
         session['account'] = request.form.get('account')
-        imort_data_to_snowflake(user = session.get('user'),
+        table_name, db_name, conn = imort_data_to_snowflake(user = session.get('user'),
                                     password = session.get('password'),
                                     account = session.get('account'),
                                     storage_allowed_location = session.get('storage_allowed_location')
                                     )
-        return redirect(url_for('pages.form_select_columns'))
+        return redirect(url_for('pages.snowflake_unnest'))
     return render_template('pages/form_snowflake_conn.html')
 
+@bp.route('/snowflake_unnest', methods=['POST', 'GET'])
+def snowflake_unnest():
+    if request.method == 'POST':
+        logger.info('Received POST request to unnest data')
+        try:
+            logger.info('Unnesting logic executed successfully')
+        except Exception as e:
+            logger.error(f'Error during unnesting: {e}')
+            raise
+        return redirect(url_for('pages.form_select_columns'))
+    return render_template('pages/snowflake_unnest.html')
 
 @bp.route('/form_select_columns', methods=['GET', 'POST'])
 def form_select_columns():
