@@ -10,3 +10,5 @@ python-dotenv
 flask_session
 google.cloud.bigquery
 google.cloud.storage
+snowflake-connector-python
+logging
