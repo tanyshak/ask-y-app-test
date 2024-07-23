@@ -1,6 +1,9 @@
 from google.oauth2 import service_account
 from google.cloud import bigquery
 from google.cloud import storage
+from google.cloud.exceptions import NotFound
+import json
+import os
 
 def get_storage_client(key_path):
     credentials = service_account.Credentials.from_service_account_file(
@@ -17,7 +20,7 @@ def create_bucket_class_location(bucket_name, location, storage_client):
         print(f"Bucket {bucket_name} already exists.")
     except NotFound:
         bucket = storage_client.bucket(bucket_name)
-        new_bucket = storage_client.create_bucket(bucket, location=location)
+        new_bucket = storage_client.create_bucket(bucket, location='us')
         print(
             "Created bucket {} in {} with storage class {}".format(
                 new_bucket.name, new_bucket.location, new_bucket.storage_class
@@ -66,3 +69,11 @@ def add_bucket_iam_member(bucket, storage_client):
     policy.bindings.append({"role": role, "members": {member}})
     bucket.set_iam_policy(policy)
     print(f"Added {member} with role {role} to {bucket}.")
+
+def download_table_schema(client, project_id, dataset_id, table_id):
+
+    output_file = 'uploads/table_schema.json'
+    table_ref = client.dataset(dataset_id).table(table_id)
+    table = client.get_table(table_ref)
+    schema = client.schema_to_json(table.schema, output_file)
+    print(f"Schema has been written to {output_file}")

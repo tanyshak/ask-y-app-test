@@ -12,10 +12,10 @@
         <div class="form-group">
           <label>Select the features you want:</label>
           <div class="checkbox-group">
-            {% for i in range(1, 21) %}
+            {% for column in all_columns %}
               <div>
-                <input type="checkbox" id="field{{ i }}" name="fields" value="field{{ i }}">
-                <label for="field{{ i }}">Field {{ i }}</label>
+                <input type="checkbox" id="{{ column }}" name="fields" value="{{ column }}">
+                <label for="{{ column }}">{{ column }}</label>
               </div>
             {% endfor %}
           </div>

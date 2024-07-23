@@ -5,6 +5,7 @@ from flask_session import Session
 from board.pages_helpers.upload_service_file import allowed_file
 from board.pages_helpers.form_project import bigquery_save_to_storage
 from board.pages_helpers.form_snowflake_conn import imort_data_to_snowflake
+from board.pages_helpers.snowflake_unnest import unnest_snowflake_table, create_conn
 
 import logging
 
@@ -26,6 +27,7 @@ sess = Session()
 
 app.config['SESSION_TYPE'] = SESSION_TYPE
 app.secret_key = os.getenv('SECRET_KEY')
+conn = None
 
 @bp.route('/')
 def home():
@@ -64,30 +66,40 @@ def form_project():
                                                             ,dataset_id = session.get('dataset_id')
                                                             ,table_id = session.get('table_id')
                                                             ,file_path = '/sample_app/*.parquet'
-                                                            ,bucket= 'data_fisheye_unnest_test_app')
+                                                            ,bucket= 'data_fisheye_nested_test_app')
         session['storage_allowed_location'] = storage_allowed_location
         return redirect(url_for('pages.form_snowflake_conn'))
     return render_template('pages/form_project.html')
 
 @bp.route('/form_snowflake_conn', methods=['POST', 'GET'])
 def form_snowflake_conn():
+    global conn
     if request.method == 'POST':
-        session['user'] = request.form.get('user')
-        session['password'] = request.form.get('password')
-        session['account'] = request.form.get('account')
-        table_name, db_name, conn = imort_data_to_snowflake(user = session.get('user'),
-                                    password = session.get('password'),
-                                    account = session.get('account'),
-                                    storage_allowed_location = session.get('storage_allowed_location')
-                                    )
+        user = request.form.get('user')
+        password = request.form.get('password')
+        account = request.form.get('account')
+        conn = create_conn(user = user, password = password, account = account)
+        table_name, db_name = imort_data_to_snowflake(
+                              conn = conn,
+                              storage_allowed_location = session.get('storage_allowed_location')
+                              )
+        session['snowflake_nested_table_name'] = table_name
         return redirect(url_for('pages.snowflake_unnest'))
     return render_template('pages/form_snowflake_conn.html')
 
 @bp.route('/snowflake_unnest', methods=['POST', 'GET'])
 def snowflake_unnest():
+    global conn
     if request.method == 'POST':
         logger.info('Received POST request to unnest data')
         try:
+            source_table_name = session.get('snowflake_nested_table_name')
+            _, all_columns = unnest_snowflake_table(conn = conn,
+                                   target_table_name = f"{source_table_name}_unnested",
+                                   source_table_name = source_table_name)
+            session['all_columns'] = all_columns
+            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!session['all_columns'] = all_columns")
+            print(all_columns)
             logger.info('Unnesting logic executed successfully')
         except Exception as e:
             logger.error(f'Error during unnesting: {e}')
@@ -100,7 +112,8 @@ def form_select_columns():
     if request.method == 'POST':
         session['selected_fields'] = request.form.getlist('fields')
         return redirect(url_for('pages.processing'))
-    return render_template('pages/form_select_columns.html')
+    all_columns = session.get('all_columns', [])
+    return render_template('pages/form_select_columns.html', all_columns=all_columns)
 
 @bp.route('/processing', methods=['GET', 'POST'])
 def processing():

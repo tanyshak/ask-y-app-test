@@ -1,5 +1,4 @@
-from board.pages_helpers.import_to_snowflake import (
-    create_conn,
+from board.pages_helpers.snowflake_helpers import (
     create_storage_integration,
     create_db,
     use_db,
@@ -9,9 +8,7 @@ from board.pages_helpers.import_to_snowflake import (
     copy_into_table
 )
 
-def imort_data_to_snowflake(user,
-                            password,
-                            account,
+def imort_data_to_snowflake(conn,
                             storage_allowed_location,
                             table_name = 'app_test',
                             si_name = 'si_snowflake_test_app',
@@ -19,7 +16,6 @@ def imort_data_to_snowflake(user,
                             stage_name = 'app_test',
                             file_format_name = 'app_test_format'):
 
-    conn = create_conn(user, password, account)
     create_storage_integration(conn, storage_allowed_location, si_name)
     create_db(conn, db_name)
     use_db(conn, db_name)
@@ -27,4 +23,4 @@ def imort_data_to_snowflake(user,
     create_file_format(conn, file_format_name)
     create_table(conn, table_name, file_format_name, stage_name)
     copy_into_table(conn, table_name, file_format_name, stage_name)
-    return table_name, db_name, conn
+    return table_name, db_name

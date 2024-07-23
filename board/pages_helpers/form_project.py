@@ -1,4 +1,9 @@
-from board.pages_helpers.bigquery_save_to_storage import get_storage_client, create_bucket_class_location, export_to_gcs, add_bucket_iam_member
+from board.pages_helpers.bigquery_save_to_storage import(
+     get_storage_client,
+     create_bucket_class_location,
+     export_to_gcs,
+     add_bucket_iam_member,
+     download_table_schema)
 from google.cloud import bigquery
 
 def bigquery_save_to_storage(location, key_path, project, dataset_id, table_id, file_path = '/sample_app/*.parquet', bucket= 'data_fisheye_unnest_test_app_1'):
@@ -14,4 +19,5 @@ def bigquery_save_to_storage(location, key_path, project, dataset_id, table_id, 
                                                table_id = table_id)
 
     add_bucket_iam_member(bucket, storage_client)
+    download_table_schema(client, project, dataset_id, table_id)
     return storage_allowed_location
