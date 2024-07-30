@@ -4,6 +4,7 @@ from werkzeug.utils import secure_filename
 from flask_session import Session
 from board.pages_helpers.upload_service_file import allowed_file
 from board.pages_helpers.form_project import bigquery_save_to_storage
+from board.pages_helpers.bigquery import bigquery_get_date_range
 from board.pages_helpers.form_snowflake_conn import imort_data_to_snowflake
 from board.pages_helpers.snowflake_unnest import unnest_snowflake_table, create_conn
 
@@ -56,20 +57,35 @@ def upload_service_file():
 @bp.route('/form_project', methods=['POST', 'GET'])
 def form_project():
     if request.method == 'POST':
-        session['project_name'] = request.form.get('project_name')
+        session['project_id'] = request.form.get('project_id')
         session['dataset_id'] = request.form.get('dataset_id')
-        session['table_id'] = request.form.get('table_id')
-        session['location'] = request.form.get('location')
-        storage_allowed_location = bigquery_save_to_storage(location = session.get('location')
-                                                            ,key_path = os.path.join(UPLOAD_FOLDER, FILENAME)
-                                                            ,project = session.get('project_name')
-                                                            ,dataset_id = session.get('dataset_id')
-                                                            ,table_id = session.get('table_id')
-                                                            ,file_path = '/sample_app/*.parquet'
-                                                            ,bucket= 'data_fisheye_nested_test_app')
-        session['storage_allowed_location'] = storage_allowed_location
-        return redirect(url_for('pages.form_snowflake_conn'))
+        very_start_date, very_end_date = bigquery_get_date_range(key_path = os.path.join(UPLOAD_FOLDER, FILENAME)
+                                                                ,project_id = session.get('project_id')
+                                                                ,dataset_id = session.get('dataset_id'))
+        session['very_start_date'] = very_start_date
+        session['very_end_date'] = very_end_date
+        return redirect(url_for('pages.form_date_range'))
     return render_template('pages/form_project.html')
+
+@bp.route('/form_date_range', methods=['POST', 'GET'])
+def form_date_range():
+    if request.method == 'POST':
+        session['start_date'] = request.form.get('start_date')
+        session['end_date'] = request.form.get('end_date')
+        storage_allowed_location, table_id = bigquery_save_to_storage(key_path = os.path.join(UPLOAD_FOLDER, FILENAME)
+                                                            ,project_id = session.get('project_id')
+                                                            ,dataset_id = session.get('dataset_id')
+                                                            ,start_date = session.get('start_date')
+                                                            ,end_date = session.get('end_date')
+                                                            ,file_path = '/sample_app/*.parquet'
+                                                            ,bucket = f"data_{session.get('project_id')}_nested_test_app")
+
+        session['storage_allowed_location'] = storage_allowed_location
+        session['table_id'] = table_id
+        return redirect(url_for('pages.form_snowflake_conn'))
+    very_start_date = session.get('very_start_date', 'None')
+    very_end_date = session.get('very_end_date', 'None')
+    return render_template('pages/form_date_range.html', very_start_date=very_start_date, very_end_date=very_end_date)
 
 @bp.route('/form_snowflake_conn', methods=['POST', 'GET'])
 def form_snowflake_conn():
@@ -79,10 +95,17 @@ def form_snowflake_conn():
         password = request.form.get('password')
         account = request.form.get('account')
         conn = create_conn(user = user, password = password, account = account)
-        table_name, db_name = imort_data_to_snowflake(
-                              conn = conn,
-                              storage_allowed_location = session.get('storage_allowed_location')
-                              )
+        project_id = session.get('project_id')
+        dataset_id = session.get('dataset_id')
+        table_id = session.get('table_id')
+        table_name = f'{dataset_id}_{table_id}'
+        imort_data_to_snowflake(conn = conn
+                                ,storage_allowed_location = session.get('storage_allowed_location')
+                                ,table_name = table_name
+                                ,si_name = f'si_snowflake_{table_name}'
+                                ,db_name = project_id
+                                ,stage_name = f'stage_{table_name}'
+                                ,file_format_name = f'{table_name}_format')
         session['snowflake_nested_table_name'] = table_name
         return redirect(url_for('pages.snowflake_unnest'))
     return render_template('pages/form_snowflake_conn.html')

@@ -5,6 +5,10 @@ import json
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
+def to_camel_case(snake_str):
+    components = snake_str.replace('-', '_').split('_')
+    return components[0] + ''.join(x.title() for x in components[1:])
+
 def create_conn(user, password, account):
     try:
         logger.info('Connection try')
@@ -154,8 +158,8 @@ def parse_schema(schema, target_table_name, source_table_name):
             if field["mode"] == "REPEATED":
                 if any(subfield["name"] == "key" and subfield["type"] == "STRING" for subfield in field["fields"]) and \
                    any(subfield["name"] == "value" and subfield["type"] == "RECORD" for subfield in field["fields"]):
-                    flatten_statements.append(f'LATERAL FLATTEN(INPUT => "{field["name"]}") AS {field["name"]}')
-                    flatten_statements.append(f'LATERAL FLATTEN(INPUT => {field["name"]}.value:value) AS {field["name"]}_value')
+                    flatten_statements.append(f'LATERAL FLATTEN(INPUT => "{field["name"]}", OUTER => TRUE) AS {field["name"]}')
+                    flatten_statements.append(f'LATERAL FLATTEN(INPUT => {field["name"]}.value:value, OUTER => TRUE) AS {field["name"]}_value')
                     select_statements.append(f'{field["name"]}.value:key AS {field["name"]}_key')
                     select_statements.append(f'{field["name"]}_value.value AS {field["name"]}_value')
                     all_columns.extend([f'{field["name"]}_key', f'{field["name"]}_value'])

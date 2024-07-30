@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Form date range</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  </head>
+  <body>
+    <div class="container">
+      <h1>Select Date Range for New Table</h1>
+      <h2>The data in the BigQuery table is available from <b>{{ very_start_date }}</b> to <b>{{ very_end_date }}</b></h2>
+      <h2>Please specify a date range within this period to create the new table</h2>
+      <h2>We will create the bucket in Google Storage and place there your table data</h2>
+      <form action="{{ url_for('pages.form_date_range') }}" method="post">
+        <div class="form-group">
+          <label for="start_date">Start date:</label>
+          <input type="text" id="start_date" name="start_date" placeholder="Enter start date">
+        </div>
+        <div class="form-group">
+          <label for="end_date">End date:</label>
+          <input type="text" id="end_date" name="end_date" placeholder="Enter end date">
+        </div>
+        <button type="submit" class="btn">Submit</button>
+      </form>
+      <h2>The process will take a couple of seconds after you press submit ...</h2>
+    </div>
+  </body>
+</html>
