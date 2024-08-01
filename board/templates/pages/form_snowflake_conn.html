@@ -2,30 +2,32 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>snowflake connection form</title>
+    <title>Snowflake Connection Form</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
   </head>
   <body>
     <div class="container">
-      <h1>We need some additional information to get access to your Snowflake account</h1>
-      <h2>We will: create storage integration, database, stage, file format, table.
-          And import the GA-4 data to the Snowflake table</h2>
+      <header>
+        <img src="{{ url_for('static', filename='logo.webp') }}" alt="Ask Y Logo" class="logo">
+      </header>
+      <h1>Snowflake Account Access</h1>
+      <p class="info-text">We will create a storage integration, database, stage, file format, and table. Your GA-4 data will be imported into the Snowflake table.</p>
       <form action="{{ url_for('pages.form_snowflake_conn') }}" method="post">
         <div class="form-group">
-          <label for="user">User :</label>
-          <input type="text" id="user" name="user" placeholder="Enter user">
+          <label for="user">User:</label>
+          <input type="text" id="user" name="user" placeholder="Enter user" class="form-control">
         </div>
         <div class="form-group">
-          <label for="dataset_id">Password:</label>
-          <input type="text" id="password" name="password" placeholder="Enter password">
+          <label for="password">Password:</label>
+          <input type="password" id="password" name="password" placeholder="Enter password" class="form-control">
         </div>
         <div class="form-group">
           <label for="account">Account:</label>
-          <input type="text" id="account" name="account" placeholder="Enter account">
+          <input type="text" id="account" name="account" placeholder="Enter account" class="form-control">
         </div>
         <button type="submit" class="btn">Submit</button>
       </form>
-      <h2>The process will take a couple of seconds after you press submit ...</h2>
+      <p class="process-info">The process will take a couple of seconds after you press submit...</p>
     </div>
   </body>
 </html>

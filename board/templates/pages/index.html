@@ -7,8 +7,12 @@
   </head>
   <body>
     <div class="container">
+      <header>
+        <img src="{{ url_for('static', filename='logo.webp') }}" alt="Ask Y Logo" class="logo">
+      </header>
       <h1>Welcome to Ask Y!</h1>
-      <a href="{{ url_for('pages.upload_service_file') }}" class="btn">Analyze my Bigquery data</a>
+      <p>At Ask Y, we focus on making data analytics accessible to everyone. Your Google Analytics 4 (GA4) data is already on BigQuery, and our platform handles the rest. No need to be a developer, data scientist, or DevOps expert—we take care of the technical details. Our tools transform your data for use in Snowflake, unnest and analyze it, and even create models for you. Dive into your data and uncover insights effortlessly with Ask Y!</p>
+      <a href="{{ url_for('pages.upload_service_file') }}" class="btn">Start journey</a>
     </div>
   </body>
 </html>

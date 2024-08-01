@@ -7,22 +7,25 @@
   </head>
   <body>
     <div class="container">
-      <h1>Select Date Range for New Table</h1>
-      <h2>The data in the BigQuery table is available from <b>{{ very_start_date }}</b> to <b>{{ very_end_date }}</b></h2>
-      <h2>Please specify a date range within this period to create the new table</h2>
-      <h2>We will create the bucket in Google Storage and place there your table data</h2>
+      <header>
+        <img src="{{ url_for('static', filename='logo.webp') }}" alt="Ask Y Logo" class="logo">
+      </header>
+      <h1>Select Date Range for Data Extraction</h1>
+      <p class="info-text">The data in the BigQuery table is available from <b>{{ very_start_date }}</b> to <b>{{ very_end_date }}</b>.</p>
+      <p class="info-text">Please specify a date range within this period to create a new table.</p>
+      <p class="info-text">A new bucket will be created in Google Cloud Storage to store your table data.</p>
       <form action="{{ url_for('pages.form_date_range') }}" method="post">
         <div class="form-group">
-          <label for="start_date">Start date:</label>
-          <input type="text" id="start_date" name="start_date" placeholder="Enter start date">
+          <label for="start_date">Start Date:</label>
+          <input type="text" id="start_date" name="start_date" placeholder="Enter start date" class="form-control">
         </div>
         <div class="form-group">
-          <label for="end_date">End date:</label>
-          <input type="text" id="end_date" name="end_date" placeholder="Enter end date">
+          <label for="end_date">End Date:</label>
+          <input type="text" id="end_date" name="end_date" placeholder="Enter end date" class="form-control">
         </div>
         <button type="submit" class="btn">Submit</button>
       </form>
-      <h2>The process will take a couple of seconds after you press submit ...</h2>
+      <p class="process-info">The process will take a couple of seconds after you press submit...</p>
     </div>
   </body>
 </html>

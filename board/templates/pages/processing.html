@@ -7,12 +7,17 @@
   </head>
   <body>
     <div class="container">
+      <header>
+        <img src="{{ url_for('static', filename='logo.webp') }}" alt="Ask Y Logo" class="logo">
+      </header>
       <h1>Processing...</h1>
-      <ul>
-      {% for field in selected_fields %}
-        <li>{{ field }}</li>
-      {% endfor %}
+      <p class="info-text">Please wait while we process the selected fields:</p>
+      <ul class="processing-list">
+        {% for field in selected_fields %}
+          <li>{{ field }}</li>
+        {% endfor %}
       </ul>
+      <p class="process-info">This may take a few moments. Thank you for your patience.</p>
     </div>
   </body>
 </html>

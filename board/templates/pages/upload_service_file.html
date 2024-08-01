@@ -2,18 +2,36 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>Upload File</title>
+    <title>Upload Your Service Account JSON File</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
   </head>
   <body>
     <div class="container">
-      <h1>Download your service account json file</h1>
+      <header>
+        <img src="{{ url_for('static', filename='logo.webp') }}" alt="Ask Y Logo" class="logo">
+      </header>
+      <h1>Upload Your Service Account JSON File</h1>
       <form action="{{ url_for('pages.upload_service_file') }}" method="post" enctype="multipart/form-data">
-        <div class="form-group">
-          <input type="file" name="file" class="file-input">
+        <div class="form-group file-input-container">
+          <input type="file" name="file" id="file-input" class="file-input" onchange="displayFileName()">
+          <label for="file-input" class="file-label">Choose File</label>
+          <span id="file-name" class="file-name">No file chosen</span>
         </div>
         <button type="submit" class="btn">Upload</button>
       </form>
+      <div class="tile">
+        <p>This service account file is necessary for accessing your BigQuery data.</p>
+        <p>If you need instructions on how to create this service account file, please click the button below:</p>
+        <a href="{{ url_for('pages.instructions') }}" class="btn btn-secondary">Get Instructions</a>
+
+      </div>
     </div>
+    <script>
+      function displayFileName() {
+        var input = document.getElementById('file-input');
+        var fileName = document.getElementById('file-name');
+        fileName.textContent = input.files.length > 0 ? input.files[0].name : 'No file chosen';
+      }
+    </script>
   </body>
 </html>

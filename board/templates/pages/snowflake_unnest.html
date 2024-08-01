@@ -7,15 +7,16 @@
   </head>
   <body>
     <div class="container">
-      <h1>We have created a table on Snowflake and imported your data there</h1>
-      <h2>We chose Snowflake for GA4 data processing due to its strong security features and efficient cost control.
-        Snowflake's pay-as-you-go model helps manage expenses, while its advanced security ensures your data is well-protected.
-        This combination makes Snowflake an ideal choice for reliable and cost-effective data processing.</h2>
-      <h2>Next Step: Unnesting Data for Simplified Analysis and Model Building</h2>
+      <header>
+        <img src="{{ url_for('static', filename='logo.webp') }}" alt="Ask Y Logo" class="logo">
+      </header>
+      <h1>Data Successfully Imported to Snowflake</h1>
+      <p class="info-text">We have chosen Snowflake for processing GA4 data due to its robust security features and efficient cost control. Snowflake's pay-as-you-go model helps manage expenses, while its advanced security ensures your data is well-protected. This combination makes Snowflake an ideal choice for reliable and cost-effective data processing.</p>
+      <p class="info-text">Next Step: Unnesting Data for Simplified Analysis and Model Building</p>
       <form action="{{ url_for('pages.snowflake_unnest') }}" method="post">
         <button type="submit" class="btn">Unnest</button>
       </form>
-      <h2>The process will take a couple of seconds after you press the submit button...</h2>
+      <p class="process-info">The process will take a couple of seconds after you press the submit button...</p>
     </div>
   </body>
 </html>

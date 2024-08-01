@@ -7,10 +7,15 @@
   </head>
   <body>
     <div class="container">
+      <header>
+        <img src="{{ url_for('static', filename='logo.webp') }}" alt="Ask Y Logo" class="logo">
+      </header>
       <h1>Select Features</h1>
       <form action="{{ url_for('pages.form_select_columns') }}" method="post">
         <div class="form-group">
-          <label>Select the features you want:</label>
+          <p class="form-instructions">Select the data features that are likely to influence the outcome you're analyzing. Consider factors like user demographics, behaviors, and interactions that may provide valuable insights for predictive modeling. The right features can improve the accuracy and relevance of your model.</p>
+          <label class="form-instructions">Choose the features that are meaningful for your model building:</label>
+          <div class="label-spacing"></div>
           <div class="checkbox-group">
             {% for column in all_columns %}
               <div>
