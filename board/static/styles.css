@@ -1,12 +1,18 @@
 :root {
-    --primary-color: #007bff;
-    --secondary-color: #0056b3;
+    --white-color: #F5F5F5;
+    --primary-color: #2F6C88;
+    --secondary-color: #244E63;
     --accent-color: #17a2b8;
-    --background-color: #f8f9fa;
-    --text-color: #343a40;
+    --background-color: #DFE3CA;
+    --container-background-color: var(--white-color);
+    --text-color: #2E2E2E;
     --input-border-color: #ced4da;
     --input-focus-border-color: #80bdff;
     --input-background-color: #ffffff;
+    --button-color: #2F6C88;
+    --button-hover-color: #254a5e;
+    --secondary-button-color: #8BAD75;
+    --secondary-hover-button-color: #789961;
 }
 
 body {
@@ -14,6 +20,26 @@ body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     margin: 0;
     padding: 20px;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: var(--container-background-color);
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.logo {
+    max-width: 200px;
+    height: auto;
+    border-radius: 10px;
 }
 
 h1 {
@@ -24,11 +50,33 @@ h1 {
     text-align: center;
 }
 
-h2 {
+.tile h2 {
     color: var(--text-color);
-    margin-bottom: 25px;
     font-size: 20px;
     font-weight: 600;
+    margin-top: 30px;
+    margin-bottom: 15px;
+}
+
+.tile p, .tile ul {
+    color: var(--text-color);
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+.tile ul {
+    padding-left: 20px;
+}
+
+.tile ul li {
+    margin-bottom: 5px;
+}
+
+p {
+    color: var(--text-color);
+    font-size: 16px;
+    line-height: 1.5;
+    margin-bottom: 25px;
     text-align: center;
 }
 
@@ -36,48 +84,49 @@ h2 {
     margin-bottom: 20px;
 }
 
-label {
-    display: block;
-    margin-bottom: 8px;
+.file-input-container {
+    display: flex;
+    align-items: center;
+}
+
+.file-input {
+    display: none;
+}
+
+.file-label {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: var(--button-color);
+    color: var(--white-color);
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s, box-shadow 0.3s;
+    box-sizing: border-box;
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+    margin-right: 10px;
+}
+
+.file-label:hover {
+    background-color: var(--button-hover-color);
+    box-shadow: 0 4px 10px rgba(0, 91, 187, 0.2);
+}
+
+.file-name {
+    font-size: 16px;
     color: var(--text-color);
     font-weight: 500;
 }
 
-input[type="text"],
-input[type="file"],
-input[type="checkbox"] {
-    width: 100%;
-    padding: 12px;
-    margin: 0;
-    font-size: 16px;
-    border: 1px solid var(--input-border-color);
-    border-radius: 5px;
-    background-color: var(--input-background-color);
-    box-sizing: border-box;
-    transition: border-color 0.3s, box-shadow 0.3s;
-}
-
-input[type="text"]:focus,
-input[type="file"]:focus {
-    border-color: var(--input-focus-border-color);
-    outline: 0;
-    box-shadow: 0 0 10px rgba(128, 189, 255, 0.5);
-}
-
-input[type="checkbox"] {
-    width: auto;
-    margin-right: 10px;
-}
-
-.checkbox-group div {
-    margin-bottom: 10px;
-}
-
 .btn {
+    display: block;
     width: 100%;
     padding: 15px;
-    background-color: var(--primary-color);
-    color: #fff;
+    background-color: var(--button-color);
+    color: var(--white-color);
     border: none;
     border-radius: 5px;
     font-size: 18px;
@@ -85,9 +134,168 @@ input[type="checkbox"] {
     transition: background-color 0.3s, box-shadow 0.3s;
     box-sizing: border-box;
     font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+    margin-top: 20px;
 }
 
 .btn:hover {
-    background-color: var(--secondary-color);
+    background-color: var(--button-hover-color);
     box-shadow: 0 4px 10px rgba(0, 91, 187, 0.2);
+}
+
+.btn-secondary {
+    display: inline-block;
+    margin-top: 15px;
+    padding: 10px 20px;
+    background-color: var(--secondary-button-color);
+    color: var(--white-color);
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+.btn-secondary:hover {
+    background-color: var(--secondary-hover-button-color);
+    box-shadow: 0 4px 10px rgba(0, 91, 187, 0.2);
+}
+.code-snippet {
+  background-color: #2d2d2d;
+  color: #f8f8f2;
+  padding: 20px;
+  border-radius: 5px;
+  margin-top: 10px;
+  font-family: 'Courier New', Courier, monospace;
+  overflow-x: auto;
+}
+.code-snippet pre {
+  margin: 0;
+}
+.code-snippet code {
+  color: #f8f8f2;
+}
+.commands-header {
+  font-size: 1.2em;
+  margin-top: 20px;
+  font-weight: bold;
+}
+.instructions-footer {
+  margin-top: 10px;
+  color: var(--text-color);
+  font-size: 16px;
+}
+.form-control {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    line-height: 1.5;
+    color: #495057;
+    background-color: var(--input-background-color);
+    background-clip: padding-box;
+    border: 1px solid var(--input-border-color);
+    border-radius: 5px;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    box-sizing: border-box;
+}
+
+.form-control:focus {
+    border-color: var(--input-focus-border-color);
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+.process-info {
+    font-size: 14px;
+    color: #6c757d; /* Lighter grey color */
+    text-align: center;
+    margin-top: 15px;
+}
+.info-text {
+    font-size: 16px;
+    color: var(--text-color);
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.process-info {
+    font-size: 14px;
+    color: #6c757d;
+    text-align: center;
+    margin-top: 15px;
+}
+
+.checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.checkbox-group div {
+    display: flex;
+    align-items: center;
+}
+
+.checkbox-group label {
+    margin-left: 5px;
+}
+
+.form-control {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    line-height: 1.5;
+    color: #495057;
+    background-color: var(--input-background-color);
+    background-clip: padding-box;
+    border: 1px solid var(--input-border-color);
+    border-radius: 5px;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    box-sizing: border-box;
+}
+
+.form-control:focus {
+    border-color: var(--input-focus-border-color);
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.label-spacing {
+    margin-bottom: 20px;
+}
+
+.form-instructions {
+    font-size: 18px;
+    font-weight: bold;
+    color: var(--text-color);
+    margin-bottom: 10px;
+    text-align: left;
+}
+
+.processing-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 20px 0;
+    text-align: left; /* Aligns the list to the left */
+}
+
+.processing-list li {
+    background-color: var(--container-background-color);
+    padding: 10px;
+    margin-bottom: 5px;
+    border-radius: 5px;
+    color: var(--text-color);
+    font-weight: 500;
+    text-align: left; /* Ensures text within each list item is aligned left */
 }
