@@ -4,7 +4,7 @@ from werkzeug.utils import secure_filename
 from flask_session import Session
 from board.pages_helpers.upload_service_file import allowed_file
 from board.pages_helpers.form_project import bigquery_save_to_storage
-from board.pages_helpers.bigquery import bigquery_get_date_range
+from board.pages_helpers.bigquery import bigquery_get_date_range, generate_gcloud_commands
 from board.pages_helpers.form_snowflake_conn import imort_data_to_snowflake
 from board.pages_helpers.snowflake_unnest import unnest_snowflake_table, create_conn
 
@@ -53,6 +53,14 @@ def upload_service_file():
         return redirect(url_for('pages.form_project'))
     else:
         return redirect(request.url)
+
+@bp.route('/instructions', methods=['GET', 'POST'])
+def instructions():
+    commands = None
+    if request.method == 'POST':
+        project_id = request.form['project_id']
+        commands = generate_gcloud_commands(project_id)
+    return render_template('pages/instructions.html', commands=commands)
 
 @bp.route('/form_project', methods=['POST', 'GET'])
 def form_project():

@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Instructions for Creating a Service Account JSON File</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <img src="{{ url_for('static', filename='logo.webp') }}" alt="Ask Y Logo" class="logo">
+      </header>
+
+      <h2>Generate Cloud Shell Instructions</h2>
+      <form id="project-id-form" action="{{ url_for('pages.instructions') }}" method="POST">
+        <div class="form-group">
+          <label for="project_id">Project ID:</label>
+          <input type="text" id="project_id" name="project_id" class="form-control" placeholder="Enter Project ID" required>
+        </div>
+        <button type="submit" class="btn">Generate</button>
+      </form>
+
+      {% if commands %}
+      <div class="commands-header">
+        Generated Cloud Shell Commands for Project ID: {{ request.form.project_id }}
+      </div>
+      <div class="code-snippet">
+        <pre><code>{{ commands }}</code></pre>
+      </div>
+      <div class="instructions-footer">
+        To save the generated key, use the <code>cat key.json</code> command in your shell, copy the output, and save it as <code>{{ request.form.project_id }}.json</code> on your computer.
+      </div>
+      {% endif %}
+
+      <div style="text-align: center; margin: 20px 0;">
+        <a href="{{ url_for('pages.upload_service_file') }}" class="btn btn-secondary">Go to Upload File Page</a>
+      </div>
+
+      <h1>Instructions for Creating a Service Account JSON File using Console</h1>
+      <p>To access your BigQuery data, you need to create a service account JSON file with specific permissions. You can follow the steps below manually:</p>
+      <ol>
+        <li>Go to the Google Cloud Console.</li>
+        <li>Select or create a new project.</li>
+        <li>Navigate to the "IAM & Admin" section and select "Service Accounts."</li>
+        <li>Click "Create Service Account."</li>
+        <li>Fill in the required details and click "Create."</li>
+        <li>In the "Service account permissions" section, add the following roles:</li>
+        <ul>
+          <li>bigquery.jobs.create</li>
+          <li>bigquery.tables.export</li>
+          <li>bigquery.tables.get</li>
+          <li>storage.buckets.create</li>
+          <li>storage.buckets.get</li>
+          <li>storage.buckets.getIamPolicy</li>
+          <li>storage.buckets.setIamPolicy</li>
+          <li>storage.objects.create</li>
+          <li>storage.objects.delete</li>
+          <li>storage.objects.get</li>
+          <li>storage.objects.list</li>
+        </ul>
+        <li>Click "Done" and navigate back to the "Service Accounts" page.</li>
+        <li>Click the "Create key" button, select JSON, and download the file.</li>
+      </ol>
+    </div>
+  </body>
+</html>

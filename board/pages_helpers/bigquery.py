@@ -133,3 +133,33 @@ def download_table_schema(client, project_id, dataset_id, table_id):
     table = client.get_table(table_ref)
     schema = client.schema_to_json(table.schema, output_file)
     print(f"Schema has been written to {output_file}")
+
+def generate_gcloud_commands(project_id):
+    commands = f"""
+    gcloud config set project {project_id} && \\
+    gcloud services enable iam.googleapis.com --project={project_id} && \\
+    gcloud iam roles create asky_permissions \\
+      --project={project_id} \\
+      --title="Ask Y Permissions Role" \\
+      --description="Custom role to enable read and write operations between BigQuery and Snowflake for ask-y app" \\
+      --permissions="bigquery.jobs.create,bigquery.tables.export,bigquery.tables.get,storage.buckets.create,storage.buckets.get,storage.buckets.getIamPolicy,storage.buckets.setIamPolicy,storage.objects.create,storage.objects.delete,storage.objects.get,storage.objects.list" \\
+      --stage="GA" && \\
+    gcloud iam service-accounts create ask-y-service-account \\
+        --description="This service account is used for BigQuery access for Ask-Y app" \\
+        --display-name="Ask-Y App Service Account" && \\
+    gcloud projects add-iam-policy-binding {project_id} \\
+        --member="serviceAccount:ask-y-service-account@{project_id}.iam.gserviceaccount.com" \\
+        --role="projects/{project_id}/roles/asky_permissions" && \\
+    gcloud projects add-iam-policy-binding {project_id} \\
+      --member="serviceAccount:ask-y-service-account@{project_id}.iam.gserviceaccount.com" \\
+      --role="roles/bigquery.dataViewer" && \\
+    gcloud projects add-iam-policy-binding {project_id} \\
+      --member="serviceAccount:ask-y-service-account@{project_id}.iam.gserviceaccount.com" \\
+      --role="roles/bigquery.dataEditor" && \\
+    gcloud projects add-iam-policy-binding {project_id} \\
+      --member="serviceAccount:ask-y-service-account@{project_id}.iam.gserviceaccount.com" \\
+      --role="roles/bigquery.jobUser" && \\
+    gcloud iam service-accounts keys create key.json \\
+        --iam-account=ask-y-service-account@{project_id}.iam.gserviceaccount.com
+    """
+    return commands.strip()
