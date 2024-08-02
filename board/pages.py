@@ -1,5 +1,5 @@
 import os
-from flask import Blueprint, render_template, request, redirect, url_for, current_app, session, Flask
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session, Flask
 from werkzeug.utils import secure_filename
 from flask_session import Session
 from board.pages_helpers.upload_service_file import allowed_file
@@ -7,6 +7,7 @@ from board.pages_helpers.form_project import bigquery_save_to_storage
 from board.pages_helpers.bigquery import bigquery_get_date_range, generate_gcloud_commands
 from board.pages_helpers.form_snowflake_conn import imort_data_to_snowflake
 from board.pages_helpers.snowflake_unnest import unnest_snowflake_table, create_conn
+from board.pages_helpers.validation_helpers import validate_date_format, validate_snowflake_form
 
 import logging
 
@@ -41,17 +42,23 @@ def upload_file():
 @bp.route('/upload_service_file', methods=['POST'])
 def upload_service_file():
     if 'file' not in request.files:
+        flash('No file part', 'error')
         return redirect(request.url)
+
     file = request.files['file']
     if file.filename == '':
+        flash('No selected file', 'error')
         return redirect(request.url)
+
     if file and allowed_file(file.filename):
         if not os.path.exists(UPLOAD_FOLDER):
             os.makedirs(UPLOAD_FOLDER)
         file_path = os.path.join(UPLOAD_FOLDER, FILENAME)
         file.save(file_path)
+        flash('File successfully uploaded', 'success')
         return redirect(url_for('pages.form_project'))
     else:
+        flash('Invalid file type. Please upload a JSON file.', 'error')
         return redirect(request.url)
 
 @bp.route('/instructions', methods=['GET', 'POST'])
@@ -65,35 +72,65 @@ def instructions():
 @bp.route('/form_project', methods=['POST', 'GET'])
 def form_project():
     if request.method == 'POST':
-        session['project_id'] = request.form.get('project_id')
-        session['dataset_id'] = request.form.get('dataset_id')
-        very_start_date, very_end_date = bigquery_get_date_range(key_path = os.path.join(UPLOAD_FOLDER, FILENAME)
-                                                                ,project_id = session.get('project_id')
-                                                                ,dataset_id = session.get('dataset_id'))
-        session['very_start_date'] = very_start_date
-        session['very_end_date'] = very_end_date
-        return redirect(url_for('pages.form_date_range'))
+        project_id = request.form.get('project_id')
+        dataset_id = request.form.get('dataset_id')
+
+        if not project_id or not dataset_id:
+            flash('Both Project ID and Dataset ID are required.', 'error')
+            return redirect(request.url)
+
+        session['project_id'] = project_id
+        session['dataset_id'] = dataset_id
+
+        try:
+            very_start_date, very_end_date = bigquery_get_date_range(
+                key_path=os.path.join(UPLOAD_FOLDER, FILENAME),
+                project_id=project_id,
+                dataset_id=dataset_id
+            )
+            session['very_start_date'] = very_start_date
+            session['very_end_date'] = very_end_date
+            return redirect(url_for('pages.form_date_range'))
+        except Exception as e:
+            flash('Error retrieving data range: ' + str(e), 'error')
+            return redirect(request.url)
+
     return render_template('pages/form_project.html')
 
 @bp.route('/form_date_range', methods=['POST', 'GET'])
 def form_date_range():
-    if request.method == 'POST':
-        session['start_date'] = request.form.get('start_date')
-        session['end_date'] = request.form.get('end_date')
-        storage_allowed_location, table_id = bigquery_save_to_storage(key_path = os.path.join(UPLOAD_FOLDER, FILENAME)
-                                                            ,project_id = session.get('project_id')
-                                                            ,dataset_id = session.get('dataset_id')
-                                                            ,start_date = session.get('start_date')
-                                                            ,end_date = session.get('end_date')
-                                                            ,file_path = '/sample_app/*.parquet'
-                                                            ,bucket = f"data_{session.get('project_id')}_nested_test_app")
+    very_start_date = session.get('very_start_date')
+    very_end_date = session.get('very_end_date')
 
-        session['storage_allowed_location'] = storage_allowed_location
-        session['table_id'] = table_id
-        return redirect(url_for('pages.form_snowflake_conn'))
-    very_start_date = session.get('very_start_date', 'None')
-    very_end_date = session.get('very_end_date', 'None')
+    if request.method == 'POST':
+        start_date = request.form.get('start_date')
+        end_date = request.form.get('end_date')
+
+        if not validate_date_format(start_date) or not validate_date_format(end_date):
+            flash(f'Dates must be in YYYYMMDD format.', 'error')
+        elif not (very_start_date <= start_date <= very_end_date):
+            flash(f'Start date must be within the available range: {very_start_date} to {very_end_date}.', 'error')
+        elif not (very_start_date <= end_date <= very_end_date):
+            flash(f'End date must be within the available range: {very_start_date} to {very_end_date}.', 'error')
+        else:
+            session['start_date'] = start_date
+            session['end_date'] = end_date
+            storage_allowed_location, table_id = bigquery_save_to_storage(
+                key_path=os.path.join('uploads', 'service_file.json'),
+                project_id=session.get('project_id'),
+                dataset_id=session.get('dataset_id'),
+                start_date=start_date,
+                end_date=end_date,
+                file_path='/sample_app/*.parquet',
+                bucket=f"data_{session.get('project_id')}_nested_test_app"
+            )
+
+            session['storage_allowed_location'] = storage_allowed_location
+            session['table_id'] = table_id
+            return redirect(url_for('pages.form_snowflake_conn'))
+
     return render_template('pages/form_date_range.html', very_start_date=very_start_date, very_end_date=very_end_date)
+
 
 @bp.route('/form_snowflake_conn', methods=['POST', 'GET'])
 def form_snowflake_conn():
@@ -102,20 +139,30 @@ def form_snowflake_conn():
         user = request.form.get('user')
         password = request.form.get('password')
         account = request.form.get('account')
-        conn = create_conn(user = user, password = password, account = account)
-        project_id = session.get('project_id')
-        dataset_id = session.get('dataset_id')
-        table_id = session.get('table_id')
-        table_name = f'{dataset_id}_{table_id}'
-        imort_data_to_snowflake(conn = conn
-                                ,storage_allowed_location = session.get('storage_allowed_location')
-                                ,table_name = table_name
-                                ,si_name = f'si_snowflake_{table_name}'
-                                ,db_name = project_id
-                                ,stage_name = f'stage_{table_name}'
-                                ,file_format_name = f'{table_name}_format')
-        session['snowflake_nested_table_name'] = table_name
-        return redirect(url_for('pages.snowflake_unnest'))
+
+        errors = validate_snowflake_form(user, password, account)
+        if errors:
+            for error in errors:
+                flash(error, 'error')
+        else:
+            try:
+                conn = create_conn(user=user, password=password, account=account)
+                project_id = session.get('project_id')
+                dataset_id = session.get('dataset_id')
+                table_id = session.get('table_id')
+                table_name = f'{dataset_id}_{table_id}'
+                imort_data_to_snowflake(conn=conn,
+                                        storage_allowed_location=session.get('storage_allowed_location'),
+                                        table_name=table_name,
+                                        si_name=f'si_snowflake_{table_name}',
+                                        db_name=project_id,
+                                        stage_name=f'stage_{table_name}',
+                                        file_format_name=f'{table_name}_format')
+                session['snowflake_nested_table_name'] = table_name
+                return redirect(url_for('pages.snowflake_unnest'))
+            except Exception as e:
+                flash(f"Failed to connect to Snowflake: {e}", 'error')
+
     return render_template('pages/form_snowflake_conn.html')
 
 @bp.route('/snowflake_unnest', methods=['POST', 'GET'])

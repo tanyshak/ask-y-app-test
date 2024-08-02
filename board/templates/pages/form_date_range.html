@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>Form date range</title>
+    <title>Form Date Range</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
   </head>
   <body>
@@ -14,14 +14,26 @@
       <p class="info-text">The data in the BigQuery table is available from <b>{{ very_start_date }}</b> to <b>{{ very_end_date }}</b>.</p>
       <p class="info-text">Please specify a date range within this period to create a new table.</p>
       <p class="info-text">A new bucket will be created in Google Cloud Storage to store your table data.</p>
+
+      <!-- Display flash messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="flash-messages">
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
       <form action="{{ url_for('pages.form_date_range') }}" method="post">
         <div class="form-group">
           <label for="start_date">Start Date:</label>
-          <input type="text" id="start_date" name="start_date" placeholder="Enter start date" class="form-control">
+          <input type="text" id="start_date" name="start_date" placeholder="Enter start date (YYYYMMDD)" class="form-control" required>
         </div>
         <div class="form-group">
           <label for="end_date">End Date:</label>
-          <input type="text" id="end_date" name="end_date" placeholder="Enter end date" class="form-control">
+          <input type="text" id="end_date" name="end_date" placeholder="Enter end date (YYYYMMDD)" class="form-control" required>
         </div>
         <button type="submit" class="btn">Submit</button>
       </form>
