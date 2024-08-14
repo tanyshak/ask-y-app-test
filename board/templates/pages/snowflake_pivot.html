@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Snowflake Pivot Table</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <img src="{{ url_for('static', filename='logo.webp') }}" alt="Ask Y Logo" class="logo">
+      </header>
+      <h1>Pivoting Your Data for Enhanced Analysis</h1>
+      <p class="info-text">
+        Pivoting your data is a crucial step in data analysis. By transforming your dataset, you can better organize and summarize the information, making it easier to uncover patterns, trends, and insights. This process is essential for creating reports, dashboards, and models that effectively communicate your findings.
+      </p>
+      <p class="info-text">
+        After pivoting, your data will be in a format that is optimized for analysis, allowing you to focus on the most relevant metrics and dimensions.
+      </p>
+      <form action="{{ url_for('pages.snowflake_pivot') }}" method="post">
+        <button type="submit" class="btn">Pivot Table</button>
+      </form>
+      <p class="process-info">The process will take a couple of seconds after you press the submit button...</p>
+    </div>
+  </body>
+</html>

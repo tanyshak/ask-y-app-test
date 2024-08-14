@@ -68,6 +68,9 @@ snowflake_reader_writer:
 - storage.objects.delete
 - storage.objects.get
 - storage.objects.list
+bigquery.dataViewer
+bigquery.dataEditor
+bigquery.jobUser
 
 
 

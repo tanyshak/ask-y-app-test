@@ -6,7 +6,7 @@ from board.pages_helpers.upload_service_file import allowed_file
 from board.pages_helpers.form_project import bigquery_save_to_storage
 from board.pages_helpers.bigquery import bigquery_get_date_range, generate_gcloud_commands
 from board.pages_helpers.form_snowflake_conn import imort_data_to_snowflake
-from board.pages_helpers.snowflake_unnest import unnest_snowflake_table, create_conn
+from board.pages_helpers.snowflake_table_transformation import unnest_snowflake_table, create_conn, pivot_snowflake_table, get_columns_list
 from board.pages_helpers.validation_helpers import validate_date_format, validate_snowflake_form
 
 import logging
@@ -172,18 +172,48 @@ def snowflake_unnest():
         logger.info('Received POST request to unnest data')
         try:
             source_table_name = session.get('snowflake_nested_table_name')
-            _, all_columns = unnest_snowflake_table(conn = conn,
-                                   target_table_name = f"{source_table_name}_unnested",
+            snowflake_unnested_table_name = f"{source_table_name}_unnested"
+            _, _ = unnest_snowflake_table(conn = conn,
+                                   target_table_name = snowflake_unnested_table_name,
                                    source_table_name = source_table_name)
-            session['all_columns'] = all_columns
-            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!session['all_columns'] = all_columns")
-            print(all_columns)
+            session['snowflake_unnested_table_name'] = snowflake_unnested_table_name
             logger.info('Unnesting logic executed successfully')
         except Exception as e:
             logger.error(f'Error during unnesting: {e}')
             raise
-        return redirect(url_for('pages.form_select_columns'))
+        return redirect(url_for('pages.snowflake_pivot'))
     return render_template('pages/snowflake_unnest.html')
+
+@bp.route('/snowflake_pivot', methods=['POST', 'GET'])
+def snowflake_pivot():
+    global conn
+    if request.method == 'POST':
+        logger.info('Received POST request to pivot table')
+        try:
+            snowflake_unnested_table_name = session.get('snowflake_unnested_table_name')
+            snowflake_pivot_table_name = f"{snowflake_unnested_table_name}_pivot"
+
+            pivot_snowflake_table(conn = conn,
+                                   target_table_name = snowflake_pivot_table_name,
+                                   source_table_name = snowflake_unnested_table_name)
+            logger.info('Pivot logic executed successfully')
+        except Exception as e:
+            logger.error(f'Error during pivot: {e}')
+            raise
+
+
+        logger.info('Received POST request to pivot table')
+        try:
+            all_columns = get_columns_list(conn = conn,
+                                           source_table_name = snowflake_pivot_table_name)
+            session['all_columns'] = all_columns
+            logger.info('Get columns logic executed successfully')
+        except Exception as e:
+            logger.error(f'Error during get columns: {e}')
+            raise
+
+        return redirect(url_for('pages.form_select_columns'))
+    return render_template('pages/snowflake_pivot.html')
 
 @bp.route('/form_select_columns', methods=['GET', 'POST'])
 def form_select_columns():
